@@ -4,16 +4,20 @@
 SCurveTp::SCurveTp(QObject *parent) : QObject(parent)
 {
     // Начальные значения
-    generateData(10.0, 1.0, 0.2); // Примерные начальные параметры
+    //generateData(1500, 5735500.0, 100); // Примерные начальные параметры
+    generateData(1500, 5735500.0, 100);
+      //generateData(1472, 7420000.0, 100);
+    //generateData(3000, 21500000, 100);
 }
 
 void SCurveTp::generateData(double maxSpeed, double acceleration, double jerk) {
-    MotionData motionData = calculateMotion(maxSpeed, acceleration, jerk);
-
     m_trajectoryData.clear();
     m_velocityData.clear();
     m_accelerationData.clear();
     m_jerkData.clear();
+    MotionData motionData = calculateMotion(maxSpeed, acceleration, jerk);
+
+
 
     m_trajectoryData.append(motionData.trajectory);
     m_velocityData.append(motionData.velocity);
@@ -34,170 +38,7 @@ void SCurveTp::generateData(double maxSpeed, double acceleration, double jerk) {
         updateSeries(m_jerkSeries, "Jerk");
     }
 }
-/*
-QList<QList<QPointF>> SCurveTp::calculateTrajectory(double maxSpeed, double acceleration, double jerk) {
-    QList<QList<QPointF>> data;
-    QList<QPointF> points;
 
-    double totalTime = 100.0; // Примерное общее время движения
-    double timeStep = 1.0; // Шаг по времени
-    double currentSpeed = 0.0;
-    double currentPosition = 0.0;
-    double currentAcceleration = 0.0;
-    double currentJerk = jerk;
-
-    for (double t = 0; t <= totalTime; t += timeStep) {
-        int phase = (int)(7 * t / totalTime); // Определение фазы движения
-
-        switch (phase) {
-        case 0: // Первая фаза разгона
-        case 6: // Последняя фаза торможения
-            currentAcceleration += currentJerk * timeStep;
-            break;
-        case 1: // Вторая фаза разгона
-        case 5: // Вторая фаза торможения
-            // Держим ускорение постоянным
-            break;
-        case 2: // Третья фаза разгона
-        case 4: // Первая фаза торможения
-            currentAcceleration -= currentJerk * timeStep;
-            break;
-        case 3: // Фаза движения с постоянной скоростью
-            currentAcceleration = 0;
-            break;
-        }
-
-        // Ограничение ускорения
-        if (currentAcceleration > acceleration) currentAcceleration = acceleration;
-        if (currentAcceleration < -acceleration) currentAcceleration = -acceleration;
-
-        // Вычисление текущей скорости и позиции
-        currentSpeed += currentAcceleration * timeStep;
-        if (currentSpeed > maxSpeed) currentSpeed = maxSpeed;
-        currentPosition += currentSpeed * timeStep;
-
-        points.append(QPointF(t, currentPosition));
-    }
-
-    data.append(points);
-    return data;
-}
-
-QList<QList<QPointF>> SCurveTp::calculateVelocity(double maxSpeed, double acceleration, double jerk) {
-    QList<QList<QPointF>> data;
-    QList<QPointF> points;
-    double totalTime = 100.0;
-    double timeStep = 1.0;
-    double currentSpeed = 0.0;
-    double currentAcceleration = 0.0;
-
-    for (double t = 0; t <= totalTime; t += timeStep) {
-        int phase = (int)(7 * t / totalTime);
-
-        switch (phase) {
-        case 0: // Первая фаза разгона
-        case 6: // Последняя фаза торможения
-            currentAcceleration += jerk * timeStep;
-            break;
-        case 1: // Вторая фаза разгона
-        case 5: // Вторая фаза торможения
-            break;
-        case 2: // Третья фаза разгона
-        case 4: // Первая фаза торможения
-            currentAcceleration -= jerk * timeStep;
-            break;
-        case 3: // Фаза постоянной скорости
-            currentAcceleration = 0;
-            break;
-        }
-
-        if (currentAcceleration > acceleration) currentAcceleration = acceleration;
-        if (currentAcceleration < -acceleration) currentAcceleration = -acceleration;
-
-        currentSpeed += currentAcceleration * timeStep;
-        if (currentSpeed > maxSpeed) currentSpeed = maxSpeed;
-        if (currentSpeed < 0) currentSpeed = 0;
-
-        points.append(QPointF(t, currentSpeed));
-    }
-
-    data.append(points);
-    return data;
-}
-
-QList<QList<QPointF>> SCurveTp::calculateAcceleration(double maxSpeed, double acceleration, double jerk) {
-    QList<QList<QPointF>> data;
-    QList<QPointF> points;
-    double totalTime = 100.0;
-    double timeStep = 1.0;
-    double currentAcceleration = 0.0;
-
-    for (double t = 0; t <= totalTime; t += timeStep) {
-        int phase = (int)(7 * t / totalTime);
-
-        switch (phase) {
-        case 0: // Первая фаза разгона
-        case 6: // Последняя фаза торможения
-            currentAcceleration += jerk * timeStep;
-            break;
-        case 1: // Вторая фаза разгона
-        case 5: // Вторая фаза торможения
-            break;
-        case 2: // Третья фаза разгона
-        case 4: // Первая фаза торможения
-            currentAcceleration -= jerk * timeStep;
-            break;
-        case 3: // Фаза постоянной скорости
-            currentAcceleration = 0;
-            break;
-        }
-
-        if (currentAcceleration > acceleration) currentAcceleration = acceleration;
-        if (currentAcceleration < -acceleration) currentAcceleration = -acceleration;
-
-        points.append(QPointF(t, currentAcceleration));
-    }
-
-    data.append(points);
-    return data;
-}
-
-QList<QList<QPointF>> SCurveTp::calculateJerk(double maxSpeed, double acceleration, double jerk) {
-    QList<QList<QPointF>> data;
-    QList<QPointF> points;
-    double totalTime = 100.0;
-    double timeStep = 1.0;
-    double currentJerk = 0.0;
-
-    for (double t = 0; t <= totalTime; t += timeStep) {
-        int phase = (int)(7 * t / totalTime);
-
-        switch (phase) {
-        case 0: // Первая фаза разгона
-        case 6: // Последняя фаза торможения
-            currentJerk = jerk;
-            break;
-        case 1: // Вторая фаза разгона
-        case 5: // Вторая фаза торможения
-            currentJerk = 0;
-            break;
-        case 2: // Третья фаза разгона
-        case 4: // Первая фаза торможения
-            currentJerk = -jerk;
-            break;
-        case 3: // Фаза постоянной скорости
-            currentJerk = 0;
-            break;
-        }
-
-        points.append(QPointF(t, currentJerk));
-    }
-
-    data.append(points);
-    return data;
-}
-
-*/
 
 void SCurveTp::updateSeries(QAbstractSeries *series, const QString &name) {
     if (!series) return;
@@ -207,7 +48,7 @@ void SCurveTp::updateSeries(QAbstractSeries *series, const QString &name) {
     // Сохранение ссылки на серию
     if (name == "Position") {
         m_trajectorySeries = xySeries;
-        xySeries->replace(m_trajectoryData[0]); // Используйте первый набор данных
+        xySeries->replace(m_trajectoryData[0]);
     } else if (name == "Velocity") {
         m_velocitySeries = xySeries;
         xySeries->replace(m_velocityData[0]);
@@ -221,93 +62,115 @@ void SCurveTp::updateSeries(QAbstractSeries *series, const QString &name) {
 }
 
 MotionData SCurveTp::calculateMotion(double maxSpeed, double acceleration, double jerkTimePercentage) {
-    MotionData data;
-    double distance = 100.0; // Общая дистанция движения
 
-    // Расчет базового времени ускорения и торможения (без джерка)
-    double baseTimeAcceleration = maxSpeed / acceleration;
-    double baseTimeDeceleration = baseTimeAcceleration;
-
-    // Расчет времени джерка
-    double jerkTime = baseTimeAcceleration * (jerkTimePercentage / 100.0);
-
-    // Расчет общего времени ускорения и торможения с учетом джерка
-    double totalTimeAcceleration = baseTimeAcceleration + jerkTime;
-    double totalTimeDeceleration = totalTimeAcceleration;
-
-    // Расчет времени и дистанции для фазы постоянной скорости при нулевом джерке
-    double distanceAcceleration = 0.5 * acceleration * pow(baseTimeAcceleration, 2);
-    double distanceDeceleration = distanceAcceleration;
-    double distanceConstantSpeed = distance - (distanceAcceleration + distanceDeceleration);
-    double timeConstantSpeed = distanceConstantSpeed / maxSpeed;
-
-    // Общее время движения
-    double totalTime = totalTimeAcceleration + totalTimeDeceleration + timeConstantSpeed;
-
-    // Инициализация переменных для хранения текущего состояния
-    double currentSpeed = 0.0, currentPosition = 0.0, currentAcceleration = 0.0, currentJerk = 0.0;
-    double timeStep = 0.01; // Шаг времени
+        MotionData data;
+        double distance = 180; // Общая дистанция движения
 
 
+        double iGearbox=60;
+        double iBearing=9.52;
 
+        double gearRatio = iGearbox * iBearing;
+        maxSpeed*=360/60;
+        qDebug()<<maxSpeed;
+        maxSpeed/=gearRatio;
 
+        qDebug()<<maxSpeed;
+        qDebug()<<acceleration;
+        acceleration /= (gearRatio * gearRatio);
+        qDebug()<<acceleration;
 
-    for (double t = 0; t <= totalTime; t += timeStep) {
-        // Определение текущей фазы движения
-        if (t < jerkTime) {
-            currentJerk = acceleration / jerkTime;
-            currentAcceleration += currentJerk * timeStep;
-        } else if (t < totalTimeAcceleration - jerkTime) {
-            currentJerk = 0;
-            currentAcceleration = acceleration;
-        } else if (t < totalTimeAcceleration) {
-            // Завершающая фаза разгона с джерком
-            currentJerk = -acceleration / jerkTime;
-            currentAcceleration += currentJerk * timeStep;
-            // Плавное уменьшение ускорения
-            if (currentAcceleration < 0) currentAcceleration = 0;
-        } else if (t < totalTimeAcceleration + timeConstantSpeed) {
-            currentJerk = 0;
-            currentAcceleration = 0;
-            currentSpeed = maxSpeed;
-        } else if (t < totalTime - totalTimeDeceleration + jerkTime) {
-            currentJerk = -acceleration / jerkTime;
-            currentAcceleration += currentJerk * timeStep;
-        } else if (t < totalTime - jerkTime) {
-            currentJerk = 0;
-            currentAcceleration = -acceleration;
-        } else {
-            currentJerk = acceleration / jerkTime;
-            currentAcceleration += currentJerk * timeStep;
+        double baseTimeAcceleration = maxSpeed / acceleration;
+        double jerkTime = baseTimeAcceleration * (jerkTimePercentage / 100.0)/2;
+
+        double distanceAcceleration = acceleration * pow(baseTimeAcceleration, 2) / 2;
+        double distanceConstantSpeed = distance - 2 * distanceAcceleration;
+        qDebug()<<"Угол на ускорение "<<distanceAcceleration/2;
+        // Проверка, достаточно ли расстояния для постоянной скорости
+        if (distanceConstantSpeed < 0) {
+        maxSpeed = sqrt(distance * acceleration);
+        baseTimeAcceleration = maxSpeed / acceleration;
+        jerkTime = baseTimeAcceleration * (jerkTimePercentage / 100.0)/2;
+        distanceConstantSpeed = 0;
         }
-        // Вычисление скорости и позиции
-        currentSpeed += currentAcceleration * timeStep;
-        currentPosition += currentSpeed * timeStep;
 
-        // Ограничение скорости и позиции
-        if (currentSpeed > maxSpeed) currentSpeed = maxSpeed;
-        if (currentSpeed < 0) currentSpeed = 0;
-        //if (currentPosition > distance) currentPosition = distance;
+        double timeConstantSpeed = distanceConstantSpeed / maxSpeed;
+        double totalTime = 2 * baseTimeAcceleration + timeConstantSpeed;
 
-        // Добавление данных в списки
-        data.trajectory.append(QPointF(t, currentPosition));
-        data.velocity.append(QPointF(t, currentSpeed));
-        data.acceleration.append(QPointF(t, currentAcceleration));
-        data.jerk.append(QPointF(t, currentJerk));
+        double currentSpeed = 0.0, currentPosition = 0.0, currentAcceleration = 0.0, currentJerk = 0.0;
+        double timeStep = 0.001;
+        qDebug()<<jerkTime;
+        qDebug()<<baseTimeAcceleration;
+        qDebug()<<timeConstantSpeed;
+        qDebug()<<totalTime;
+
+
+        for (double t = 0; t <= totalTime; t += timeStep) {
+
+            if (t < jerkTime) {
+                currentJerk = acceleration/(jerkTime/2);
+                currentAcceleration += currentJerk * timeStep;
+
+                //currentAcceleration = acceleration + (acceleration * jerkTimePercentage / 100.0) ;
+                //currentAcceleration += (acceleration * jerkTimePercentage / 100.0);
+
+            } else if (t < baseTimeAcceleration - jerkTime) {
+                currentJerk = 0;
+                //currentAcceleration = acceleration ;
+                currentAcceleration = acceleration * (1 + jerkTimePercentage / 100.0);
+            } else if (t < baseTimeAcceleration) {
+
+                currentJerk = -acceleration/(jerkTime/2);
+                currentAcceleration += currentJerk * timeStep;
+
+                //currentAcceleration = acceleration + (acceleration * jerkTimePercentage / 100.0);
+                //currentAcceleration -= (acceleration * jerkTimePercentage / 100.0);
+
+            } else if (t < baseTimeAcceleration + timeConstantSpeed)  {
+                currentJerk = 0;
+                currentAcceleration = 0;
+                currentSpeed = maxSpeed;
+
+            } else if (t < totalTime - baseTimeAcceleration + jerkTime) {
+                currentJerk = -acceleration /(0.5*jerkTime);
+                currentAcceleration += currentJerk * timeStep;
+            } else if (t < totalTime - jerkTime) {
+                currentJerk = 0;
+                currentAcceleration = -acceleration ;
+            } else {
+                currentJerk = acceleration / (0.5*jerkTime);
+                currentAcceleration += currentJerk * timeStep;
+            }
+
+            currentSpeed += currentAcceleration * timeStep;
+            currentPosition += currentSpeed * timeStep;
+
+
+            //if (currentSpeed > maxSpeed) currentSpeed = maxSpeed;
+            //if (currentSpeed < 0) currentSpeed = 0;
+            //if (currentPosition > distance) currentPosition = distance;
+
+
+            double speed_rpm = currentSpeed * gearRatio * (60 / 360.0);
+
+            data.trajectory.append(QPointF(t, currentPosition));
+            data.velocity.append(QPointF(t, speed_rpm));
+            data.acceleration.append(QPointF(t, currentAcceleration));
+            data.jerk.append(QPointF(t, currentJerk));
+        }
+        qDebug()<<currentPosition;
+        double t=totalTime;
+
+        while (t < 100.0) {
+            currentSpeed = (t >= totalTime) ? 0.0 : currentSpeed;
+            currentAcceleration = (t >= totalTime) ? 0.0 : currentAcceleration;
+            currentJerk = (t >= totalTime) ? 0.0 : currentJerk;
+            data.trajectory.append(QPointF(t, currentPosition));
+            data.velocity.append(QPointF(t, currentSpeed));
+            data.acceleration.append(QPointF(t, currentAcceleration));
+            data.jerk.append(QPointF(t, currentJerk));
+
+            t += timeStep;
+        }
+        return data;
     }
-    double t=totalTime;
-    // Если общее время меньше максимального времени, заполнить оставшееся время
-    while (t < 100.0) {
-        currentSpeed = (t >= totalTime) ? 0.0 : currentSpeed; // Скорость 0 после окончания движения
-        currentAcceleration = (t >= totalTime) ? 0.0 : currentAcceleration; // Ускорение 0 после окончания движения
-        currentJerk = (t >= totalTime) ? 0.0 : currentJerk; // Джерк 0 после окончания движения
-
-        data.trajectory.append(QPointF(t, currentPosition));
-        data.velocity.append(QPointF(t, currentSpeed));
-        data.acceleration.append(QPointF(t, currentAcceleration));
-        data.jerk.append(QPointF(t, currentJerk));
-
-        t += timeStep;
-    }
-    return data;
-}

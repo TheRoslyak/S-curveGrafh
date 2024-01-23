@@ -63,7 +63,7 @@ Window {
                                    titleText: "Position (m)"
                                    labelFormat: "%.2f"
                                    min: 0
-                                   max: 150
+                                   max: 420
                                }
                                ValueAxis {
                                    id: axisTime
@@ -71,7 +71,7 @@ Window {
                                    //labelFormat: "%.1f"
                                   // tickCount: 10
                                    min: 0
-                                   max: 10
+                                   max: 40
                                }
 
                            }
@@ -99,12 +99,12 @@ Window {
                                    titleText: "Velocity"
                                    labelFormat: "%.2f"
                                    min: 0
-                                   max: 60
+                                   max: 3500
                                }
                                ValueAxis {
                                    id: axisTime2
                                    min: 0
-                                   max: 10
+                                   max: 40
                                }
                            }
 
@@ -131,14 +131,14 @@ Window {
                                    id: axisAcceleration
                                    titleText: "Acceleration"
                                    labelFormat: "%.2f"
-                                   min: -100
-                                   max: 100
+                                   min: -3000
+                                   max: 3000
 
                                }
                                ValueAxis {
                                    id: axisTime3
                                    min: 0
-                                   max: 10
+                                   max: 40
                                }
                            }
 
@@ -169,7 +169,8 @@ Window {
                                ValueAxis {
                                    id: axisTime4
                                    min: 0
-                                   max: 10
+                                   max: 40
+
                                }
                            }
 
@@ -189,20 +190,30 @@ Window {
                        Slider {
                            id: maxVelocitySlider
                            from: 0
-                           to: 100
+                           to: 4000
                            Layout.fillWidth: true
                            stepSize: 1
                            onValueChanged: myModel.generateData(maxVelocitySlider.value,maxAccelerationSlider.value,jerkSlider.value)
+                           Text {
+                               id: velocity
+                               text: maxVelocitySlider.value
+                               y:-10
+                           }
                        }
 
                        // Слайдер для максимального ускорения
                        Slider {
                            id: maxAccelerationSlider
                            from: 0
-                           to: 100
+                           to: 100000000
                            Layout.fillWidth: true
                            stepSize: 1
                            onValueChanged: myModel.generateData(maxVelocitySlider.value,maxAccelerationSlider.value,jerkSlider.value)
+                           Text {
+                               id: acceleration
+                               text: maxAccelerationSlider.value
+                               y:-10
+                           }
                        }
 
 
